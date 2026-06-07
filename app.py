@@ -37,7 +37,6 @@ class EnterpriseSaaSEngine:
                 if col == 'حالة_الطلب': self.df['حالة_الطلب'] = 'مكتمل'
 
         # عزل النزيف المالي: إقصاء الطلبات الوهمية، الملغية، أو بانتظار الدفع
-        # هذه الميزة لوحدها توفر آلاف الدنانير لأنها تعطي التاجر صافي الكاش الحقيقي
         if 'حالة_الطلب' in self.df.columns:
             bleeding_statuses = ['ملغي', 'مسترجع', 'بانتظار الدفع', 'بانتظار المراجعة', 'مرفوض', 'Canceled', 'Refunded']
             self.df = self.df[~self.df['حالة_الطلب'].astype(str).str.strip().isin(bleeding_statuses)]
@@ -114,8 +113,8 @@ if not st.session_state.active_data and not st.session_state.saas_activated:
     st.subheader("🔒 تفعيل الوصول لقطاع الشركات والمتاجر الكبرى")
     st.info("💡 لمشاهدة واختبار النظام كصاحب متجر يحقق مئات الآلاف، اضغط تفعيل الباقة للوصول للوحة التحكم الكاملة.")
     
-    c1, c2, c3 = st.columns(3)
-    with col2:
+    col1, col2, col3 = st.columns(3)
+    with col2: # تم تصحيح الاسم هنا من col2 المفقود إلى col2 المطبّق في الـ columns
         st.markdown("""
         ### 🚀 باقة المستشار والذكاء الاستباقي
         * **تطهير وعزل فوري** للطلبات الفاشلة والملغية (حماية صافي الأرباح).
@@ -163,7 +162,7 @@ else:
         total_orders = cleaned_df['رقم_الطلب'].nunique() if 'رقم_الطلب' in cleaned_df.columns else len(cleaned_df)
         avg_order_value = total_revenue / total_orders if total_orders > 0 else 0
         
-        # حجم النزيف الذي حمينا التاجر منه (قيمة المشكلة المحلولة)
+        # حجم النزيف الذي حمينا التاجر منه
         leaked_count = len(st.session_state.active_data) - len(cleaned_df)
         
         st.subheader("📊 خطوة 2: لوحة الإدارة المالية وكفاءة رأس المال")
@@ -197,7 +196,6 @@ else:
                 st.line_chart(data=fut_df, x='التاريخ', y='المبيعات_المتوقعة')
                 expected_cash_week = fut_df['المبيعات_المتوقعة'].sum()
                 
-                # صندوق البرهان الاستشاري (صناعة القيمة بآلاف الدولارات)
                 st.warning(f"💡 **توجيه مالي استراتيجي للعمليات**: يتوقع النظام تدفقاً نقدياً للمبيعات بقيمة **{expected_cash_week:,.2f} د.أ** خلال الـ 7 أيام القادمة. لتفادي مشكلة نفاد المخزون وضياع الأرباح، نوصي بمطابقة مستويات بضائعك الحالية فوراً لتلبية حجم هذا الطلب المتوقع.")
             else:
                 st.info(f"حالة محرك التنبؤ: {status_msg}")
