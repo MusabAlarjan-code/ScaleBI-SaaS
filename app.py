@@ -8,13 +8,16 @@ st.set_page_config(page_title="Salla & Zid Enterprise BI | منظومة ذكاء
 
 class EnterpriseSaaSEngine:
     def __init__(self, df):
-        self.df = df.copy()
+        self.df = df.copy() if df is not None else pd.DataFrame()
         
     def advanced_ecom_cleansing(self):
         """
         تطهير هيكلي مخصص لمعالجة ملفات سلة وزد الحقيقية.
         هنا نقوم بحل مشكلة الـ 'Order Bleeding' التي تكلف المتاجر آلاف الدولارات.
         """
+        if self.df.empty:
+            return self.df
+            
         # قاموس الربط الذكي الموحد للمنصات الكبرى
         ecom_mapping = {
             'رقم الطلب': 'رقم_الطلب', 'رقم طلب': 'رقم_الطلب',
@@ -108,13 +111,13 @@ st.title("🛡️ ScaleBI - المنظومة السحابية المتقدمة �
 st.write("نظام SaaS مؤسسي مخصص للمتاجر الكبرى لربط البيانات، حماية الأرباح، والتنبؤ بالمخزون.")
 st.markdown("---")
 
-# 1. بوابة الدفع المقفلة (SaaS Paywall Layer)
-if not st.session_state.active_data and not st.session_state.saas_activated:
+# 1. بوابة الدفع المقفلة (SaaS Paywall Layer) - تم إصلاح الشرط هنا لتفادي ValueError
+if st.session_state.active_data is None and not st.session_state.saas_activated:
     st.subheader("🔒 تفعيل الوصول لقطاع الشركات والمتاجر الكبرى")
     st.info("💡 لمشاهدة واختبار النظام كصاحب متجر يحقق مئات الآلاف، اضغط تفعيل الباقة للوصول للوحة التحكم الكاملة.")
     
     col1, col2, col3 = st.columns(3)
-    with col2: # تم تصحيح الاسم هنا من col2 المفقود إلى col2 المطبّق في الـ columns
+    with col2:
         st.markdown("""
         ### 🚀 باقة المستشار والذكاء الاستباقي
         * **تطهير وعزل فوري** للطلبات الفاشلة والملغية (حماية صافي الأرباح).
@@ -142,7 +145,7 @@ else:
         uploaded_file = st.file_uploader("ارفع ملف مبيعات المتجر المباشر (Excel/CSV)", type=["xlsx", "csv"])
         
         if st.button("🔄 اختبار النظام: محاكاة متجر مبيعات ضخم (100k+) وفحص الأداء فوراً", use_container_width=True):
-            st.session_state.active_data = EnterpriseSaaSEngine(pd.DataFrame()).generate_100k_store_mock()
+            st.session_state.active_data = EnterpriseSaaSEngine(None).generate_100k_store_mock()
             st.rerun()
             
         if uploaded_file:
